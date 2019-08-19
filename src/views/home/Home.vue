@@ -41,6 +41,7 @@ import FeatureView from './childComps/FeatureView'
 
 import { getHomeMultidata, getHomeGoods } from 'network/home'
 import { debounce } from 'common/utils'
+import { itemListenerMixin } from 'common/mixin'
 import { clearTimeout, setTimeout } from 'timers'
 
 export default {
@@ -55,6 +56,7 @@ export default {
     RecommendView,
     FeatureView
   },
+  mixins: [itemListenerMixin],
   data() {
     return {
       banners: [],
@@ -81,7 +83,10 @@ export default {
     this.$refs.scroll.refresh()
   },
   deactivated() {
+    // 1、保存Y值
     this.saveY = this.$refs.scroll.getScrollY()
+    // 2、取消全局事件的监听
+    this.$bus.$off('itemImgLoad', this.itemImgListener)
   },
   created() {
     // 1、请求多个数据
@@ -93,11 +98,13 @@ export default {
     this.getHomeGoods('sell')
   },
   mounted() {
-    // 监听item中图片加载完成
-    const refresh = debounce(this.$refs.scroll.refresh, 50)
-    this.$bus.$on('itemImageLoad', () => {
-      refresh()
-    })
+    // // 监听item中图片加载完成
+    // const refresh = debounce(this.$refs.scroll.refresh, 50)
+    // // 对监听事件进行保存
+    // this.itemImgListener = () => {
+    //   refresh()
+    // }
+    // this.$bus.$on('itemImageLoad', this.itemImgListener)
   },
   methods: {
     /**
@@ -115,8 +122,8 @@ export default {
           this.currentType = 'sell'
           break
       }
-      this.$refs.TabControl1.currentIndex = idnex
-      this.$refs.TabControl2.currentIndex = idnex
+      this.$refs.tabControl1.currentIndex = index
+      this.$refs.tabControl2.currentIndex = index
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0)

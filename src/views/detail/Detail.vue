@@ -171,6 +171,7 @@ export default {
       console.log(product)
 
       // 2、将商品添加到购物车
+      this.$store.dispatch('addCart', product)
     }
   }
 }
